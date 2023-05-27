@@ -1,4 +1,4 @@
 # Graph-aS-Tokens
 Coming soon
 
-Originazing data, code and readme now
+Collating data, code and readme now
