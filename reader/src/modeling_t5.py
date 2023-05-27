@@ -843,7 +843,7 @@ class T5Stack(T5PreTrainedModel):
                 tmp = torch.eye(config.d_model).float() / 3
                 self.node_edge_reduction.weight = nn.Parameter(
                     torch.cat([tmp, tmp, tmp], dim=1))  # initialize from 1/3 eye matrices
-            self.split_node_edge_tokens = True if opt.split_node_edge_tokens else False
+            self.only_edge_mlp = True if opt.only_edge_mlp else False
             self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
             self.dropout = nn.Dropout(config.dropout_rate)
 
@@ -966,7 +966,7 @@ class T5Stack(T5PreTrainedModel):
                     nodes_embeds = nodes_embeds * nodes_mask.unsqueeze(-1)
                     edges_embeds = edges_embeds * edges_mask.unsqueeze(-1)
                     graph_embeds = nodes_embeds + edges_embeds
-                elif self.split_node_edge_tokens:
+                elif self.only_edge_mlp:
                     graph_num = torch.count_nonzero(graph_ids, dim=-1)
                     graph_num_0 = (graph_num == 0)
                     graph_num_1 = (graph_num == 1)
