@@ -734,7 +734,7 @@ class BartEncoder(BartPretrainedModel):
             tmp = torch.eye(config.d_model).float() / 3
             self.node_edge_reduction.weight = nn.Parameter(
                 torch.cat([tmp, tmp, tmp], dim=1))  # initialize from 1/3 eye matrices
-        self.split_node_edge_tokens = True if args.split_node_edge_tokens else False
+        self.only_edge_mlp = True if args.only_edge_mlp else False
 
         if embed_tokens is not None:
             self.embed_tokens = embed_tokens
@@ -857,7 +857,7 @@ class BartEncoder(BartPretrainedModel):
                     edges_embeds = edges_embeds.view(shape[0], shape[1], -1)
                     edges_embeds = edges_embeds * edges_mask.unsqueeze(-1)
                     graph_embeds = nodes_embeds + edges_embeds
-                elif self.split_node_edge_tokens:
+                elif self.only_edge_mlp:
                     # graph_num = torch.count_nonzero(graph_ids, dim=-1)
                     # graph_num_1 = (graph_num == 1)
                     # graph_num_0 = (graph_num == 0)
