@@ -252,55 +252,55 @@ def encode_passages(batch_text_passages, tokenizer, max_length):
     passage_masks = torch.cat(passage_masks, dim=0)
     return passage_ids, passage_masks.bool()
 
-def encode_graphs(batch_nodes, batch_rels, graph_max_length, word_maxlength, words_dict=None):
-    batch_graph_ids, batch_graph_masks = [], []
-    batch_rel_ids = []
-    for i in range(len(batch_nodes)):
-        nodes = batch_nodes[i]
-        rels = batch_rels[i]
-        graph_ids, graph_masks = [], []
-        rel_ids = []
-        for j in range(len(nodes)):
-            nodes_ = nodes[j][:graph_max_length]
-            if j >= len(rels):
-                print(j)
-                print(rels)
-                print(nodes)
-            rels_ = rels[j]
-
-            if len(nodes_) == 0:
-                print()
-                nodes_ = ["",]
-            tmp_graph_ids = torch.cat([words_dict[node]['input_ids'] for node in nodes_]).unsqueeze(0)
-            zero_pad = ZeroPad2d(padding=(0,0,0, graph_max_length-tmp_graph_ids.shape[1]))
-            tmp_graph_ids = zero_pad(tmp_graph_ids)
-            graph_ids.append(tmp_graph_ids)
-            tmp_attention_mask = torch.LongTensor([1 if t.bool().any() else 0 for t in tmp_graph_ids[0]]).unsqueeze(0)
-            graph_masks.append(tmp_attention_mask)
-
-            tmp_rels_ids = []
-            for k in range(len(rels_)):
-                tmp_rel_ids = torch.cat([words_dict[rel]['input_ids'] for rel in rels_[k]]).unsqueeze(0)
-                zero_pad = ZeroPad2d(padding=(0, 0, 0, graph_max_length - tmp_rel_ids.shape[1]))
-                tmp_rel_ids = zero_pad(tmp_rel_ids)
-                tmp_rels_ids.append(tmp_rel_ids)
-            zeros_rel_ids = torch.zeros((max(graph_max_length-len(tmp_rels_ids),0), graph_max_length, word_maxlength), dtype=torch.long)
-            tmp_rels_ids.append(zeros_rel_ids)
-            tmp_rels_ids = torch.cat(tmp_rels_ids, dim=0)
-            tmp_rels_ids = tmp_rels_ids.unsqueeze(dim=0)
-            rel_ids.append(tmp_rels_ids)
-        graph_ids = torch.cat(graph_ids, dim=0).unsqueeze(dim=0)
-        graph_masks = torch.cat(graph_masks, dim=0).unsqueeze(dim=0)
-        batch_graph_ids.append(graph_ids)
-        batch_graph_masks.append(graph_masks)
-        rel_ids = torch.cat(rel_ids, dim=0).unsqueeze(dim=0)
-        batch_rel_ids.append(rel_ids)
-
-    batch_graph_ids = torch.cat(batch_graph_ids, dim=0)
-    batch_graph_masks = torch.cat(batch_graph_masks, dim=0)
-    batch_rel_ids = torch.cat(batch_rel_ids, dim=0)
-
-    return batch_graph_ids, batch_graph_masks.bool(), batch_rel_ids
+# def encode_graphs(batch_nodes, batch_rels, graph_max_length, word_maxlength, words_dict=None):
+#     batch_graph_ids, batch_graph_masks = [], []
+#     batch_rel_ids = []
+#     for i in range(len(batch_nodes)):
+#         nodes = batch_nodes[i]
+#         rels = batch_rels[i]
+#         graph_ids, graph_masks = [], []
+#         rel_ids = []
+#         for j in range(len(nodes)):
+#             nodes_ = nodes[j][:graph_max_length]
+#             if j >= len(rels):
+#                 print(j)
+#                 print(rels)
+#                 print(nodes)
+#             rels_ = rels[j]
+#
+#             if len(nodes_) == 0:
+#                 print()
+#                 nodes_ = ["",]
+#             tmp_graph_ids = torch.cat([words_dict[node]['input_ids'] for node in nodes_]).unsqueeze(0)
+#             zero_pad = ZeroPad2d(padding=(0,0,0, graph_max_length-tmp_graph_ids.shape[1]))
+#             tmp_graph_ids = zero_pad(tmp_graph_ids)
+#             graph_ids.append(tmp_graph_ids)
+#             tmp_attention_mask = torch.LongTensor([1 if t.bool().any() else 0 for t in tmp_graph_ids[0]]).unsqueeze(0)
+#             graph_masks.append(tmp_attention_mask)
+#
+#             tmp_rels_ids = []
+#             for k in range(len(rels_)):
+#                 tmp_rel_ids = torch.cat([words_dict[rel]['input_ids'] for rel in rels_[k]]).unsqueeze(0)
+#                 zero_pad = ZeroPad2d(padding=(0, 0, 0, graph_max_length - tmp_rel_ids.shape[1]))
+#                 tmp_rel_ids = zero_pad(tmp_rel_ids)
+#                 tmp_rels_ids.append(tmp_rel_ids)
+#             zeros_rel_ids = torch.zeros((max(graph_max_length-len(tmp_rels_ids),0), graph_max_length, word_maxlength), dtype=torch.long)
+#             tmp_rels_ids.append(zeros_rel_ids)
+#             tmp_rels_ids = torch.cat(tmp_rels_ids, dim=0)
+#             tmp_rels_ids = tmp_rels_ids.unsqueeze(dim=0)
+#             rel_ids.append(tmp_rels_ids)
+#         graph_ids = torch.cat(graph_ids, dim=0).unsqueeze(dim=0)
+#         graph_masks = torch.cat(graph_masks, dim=0).unsqueeze(dim=0)
+#         batch_graph_ids.append(graph_ids)
+#         batch_graph_masks.append(graph_masks)
+#         rel_ids = torch.cat(rel_ids, dim=0).unsqueeze(dim=0)
+#         batch_rel_ids.append(rel_ids)
+#
+#     batch_graph_ids = torch.cat(batch_graph_ids, dim=0)
+#     batch_graph_masks = torch.cat(batch_graph_masks, dim=0)
+#     batch_rel_ids = torch.cat(batch_rel_ids, dim=0)
+#
+#     return batch_graph_ids, batch_graph_masks.bool(), batch_rel_ids
 
 def encode_nodes(batch_nodes, graph_max_length, words_dict=None):
     batch_graph_ids, batch_graph_masks = [], []
@@ -327,15 +327,17 @@ def encode_nodes(batch_nodes, graph_max_length, words_dict=None):
 
     return batch_graph_ids, batch_graph_masks.bool()
 
-def encode_nodes_edges(batch_nodes, batch_edges, graph_max_length, words_dict=None):
+def encode_nodes_edges(batch_nodes, batch_edges, graph_max_length, tokenizer, words_dict=None):
     batch_graph_ids, batch_graph_masks = [], []
+
     for i in range(len(batch_nodes)):
         nodes = batch_nodes[i]
-        edges = batch_edges[i]
+        edgess = batch_edges[i]
         graph_ids, graph_masks = [], []
+
         for j in range(len(nodes)):
             nodes_ = nodes[j][:graph_max_length-1]
-            edges_ = edges[j][:max(graph_max_length-len(nodes_),1)]
+            edges_ = edgess[j][:max(graph_max_length-len(nodes_),1)]
             if len(nodes_) == 0:
                 nodes_ = ["", ]
             tmp_graph_ids = torch.cat([words_dict[node]['input_ids'] for node in nodes_]).unsqueeze(0)
@@ -408,22 +410,17 @@ class AMRCollator(object):
                  enumerate(batch)]
         edges = [[example['edges_token'][j] for j, t in enumerate(example['edges_token'])] for i, example in
                  enumerate(batch)]
-        rels = [[t for t in example['relations']] for example in batch]
-        if self.graph_as_token == True:
-            graph_ids, graph_masks = encode_nodes_edges(nodes, edges,
-                                                          self.graph_maxlength,
-                                                          words_dict=self.words_dict)
-            rel_ids = None
-        elif self.no_relation:
-            graph_ids, graph_masks = encode_nodes(nodes,
-                                                      self.graph_maxlength,
+        # rels = [[t for t in example['relations']] for example in batch]
+        # if self.graph_as_token == True:
+        graph_ids, graph_masks = encode_nodes_edges(nodes, edges,
+                                                      self.graph_maxlength,tokenizer=self.tokenizer,
                                                       words_dict=self.words_dict)
-            rel_ids = None
-        else:
-            graph_ids, graph_masks, rel_ids = encode_graphs(nodes, rels,
-                                                     self.graph_maxlength,
-                                                     word_maxlength=self.word_maxlength,
-                                                     words_dict=self.words_dict)
+        rel_ids = None
+        # else:
+        #     graph_ids, graph_masks, rel_ids = encode_graphs(nodes, rels,
+        #                                              self.graph_maxlength,
+        #                                              word_maxlength=self.word_maxlength,
+        #                                              words_dict=self.words_dict, tokenizer=self.tokenizer)
 
         return (index, target_ids, target_mask, passage_ids, passage_masks, graph_ids, graph_masks, rel_ids)
 
@@ -562,9 +559,19 @@ def get_words_dict(tokenizer, examples, opt):
     #  for example in tqdm(examples)]
     # [words_set.update(set(re.sub(re.compile(r"_([0-9]|([0-9]))"), " ", ctx['amr']).replace("(", " ( ").replace(")", " ) ").replace("\"", " ").split())) \
     #  for example in tqdm(examples) for ctx in example['ctxs']]
-    nodes_edges_file = open(opt.nodes_edges_file, 'r', encoding='utf8')
-    nodes_edges = [n_e.strip() for n_e in nodes_edges_file.readlines()]
-    words_set.update(nodes_edges)
+    # nodes_edges_file = open(opt.nodes_edges_file, 'r', encoding='utf8')
+    # nodes_edges = [n_e.strip() for n_e in nodes_edges_file.readlines()]
+    all_nodes_edges = set()
+    for case in tqdm(examples, desc='Processing AMR nodes and edges...'):
+        for ctx in case['ctxs']:
+            nodes = [re.sub(re.compile(r"-([0-9]([0-9]))"), "", node) for node in
+                     ctx['nodes']]
+            edges = [edge[1] for edge in ctx['edges']]
+            all_nodes_edges.update(nodes)
+            all_nodes_edges.update(edges)
+    # for node in all_nodes:
+    #     nodes_file.write(node + '\n')
+    words_set.update(all_nodes_edges)
     dict = {
         word: tokenizer.encode_plus(word, max_length=opt.word_maxlength, padding='max_length', return_tensors='pt', truncation=True)
         for word in tqdm(words_set)}

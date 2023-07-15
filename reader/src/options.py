@@ -61,7 +61,7 @@ class Options():
         self.parser.add_argument('--gst_invisible4decoder', action='store_true')
         self.parser.add_argument('--graph_token_attention', action='store_true')
         self.parser.add_argument('--split_node_edge_tokens', action='store_true')
-
+        self.parser.add_argument('--only_edge_mlp', action='store_true')
 
     def add_retriever_options(self):
         self.parser.add_argument('--train_data', type=str, default='none', help='path of train data')

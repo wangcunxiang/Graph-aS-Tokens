@@ -66,9 +66,9 @@ def train(model, optimizer, scheduler, step, train_dataset, eval_dataset, opt, c
             )[0]
 
             train_loss.backward()
-            if opt.local_rank in [-1, 0] and not opt.no_wandb:
-                wandb.log({'train_loss': train_loss.item(), 'iteration': step})
-                wandb.log({'lr': scheduler.get_last_lr()[0], 'iteration': step})
+            # if opt.local_rank in [-1, 0] and not opt.no_wandb:
+            #     wandb.log({'train_loss': train_loss.item(), 'iteration': step})
+            #     wandb.log({'lr': scheduler.get_last_lr()[0], 'iteration': step})
             if step % opt.accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), opt.clip)
                 optimizer.step()
@@ -93,9 +93,9 @@ def train(model, optimizer, scheduler, step, train_dataset, eval_dataset, opt, c
                     log += f"evaluation: {100*dev_em:.2f}EM |"
                     log += f"lr: {scheduler.get_last_lr()[0]:.5f}"
                     logger.info(log)
-                    if opt.local_rank in [-1, 0] and not opt.no_wandb:
-                        wandb.log({'dev_em': 100 * dev_em, 'iteration': step})
-                        wandb.log({'stable_train_loss': curr_loss / opt.eval_freq, 'iteration': step})
+                    # if opt.local_rank in [-1, 0] and not opt.no_wandb:
+                    #     wandb.log({'dev_em': 100 * dev_em, 'iteration': step})
+                    #     wandb.log({'stable_train_loss': curr_loss / opt.eval_freq, 'iteration': step})
                     if tb_logger is not None:
                         tb_logger.add_scalar("Evaluation", dev_em, step)
                         tb_logger.add_scalar("Training", curr_loss / (opt.eval_freq), step)
@@ -163,9 +163,9 @@ if __name__ == "__main__":
     options.add_optim_options()
     opt = options.parse()
     #opt = options.get_options(use_reader=True, use_optim=True)
-    if opt.local_rank in [-1, 0] and not opt.no_wandb:
-        wandb.login(key="64d4aba41acda3b77b50e25d595fb18fdf327590")
-        wandb.init(project="FiD_struc", entity="seanwang", notes=opt.name)
+    # if opt.local_rank in [-1, 0] and not opt.no_wandb:
+    #     wandb.login(key="")
+    #     wandb.init(project="", entity="", notes=opt.name)
 
     print('name = {}'.format(opt.name))
     torch.manual_seed(opt.seed)
@@ -188,10 +188,10 @@ if __name__ == "__main__":
     )
 
     model_name = 't5-' + opt.model_size
-    model_class = src.model_1.FiDT5
+    model_class = src.model.FiDT5
 
     #load data
-    tokenizer = transformers.T5Tokenizer.from_pretrained(model_name)
+    tokenizer = transformers.T5Tokenizer.from_pretrained(model_name, local_files_only=True)
 
     # use golbal rank and world size to split the eval set on multiple gpus
     train_examples = src.data.load_data(
@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
     if opt.model_size is not None and opt.model_path == "none":
         t5 = transformers.T5ForConditionalGeneration.from_pretrained(model_name)
-        model = src.model_1.FiDT5(t5.config, opt)
+        model = src.model.FiDT5(t5.config, opt)
         model.load_t5(t5.state_dict())
         model = model.to(opt.local_rank if not opt.cpu else 'cpu')
         optimizer, scheduler = src.util.set_optim(opt, model)
