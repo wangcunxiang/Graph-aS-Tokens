@@ -10,14 +10,14 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
     
-with open("requirements.txt", "r") as f:
+with open("reader/requirements.txt", "r") as f:
     install_requires = list(f.read().splitlines())
  
 
 setuptools.setup(
-    name="FiD",
+    name="GST",
     version="0.1.0",
-    description="Fusion-in-Decoder",
+    description="Graph-aS-Tokens",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
