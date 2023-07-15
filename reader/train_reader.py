@@ -163,10 +163,7 @@ if __name__ == "__main__":
     options.add_optim_options()
     opt = options.parse()
     #opt = options.get_options(use_reader=True, use_optim=True)
-    if opt.local_rank in [-1, 0] and not opt.no_wandb:
-        wandb.login(key="64d4aba41acda3b77b50e25d595fb18fdf327590")
-        wandb.init(project="FiD_struc", entity="seanwang", notes=opt.name)
-
+    
     print('name = {}'.format(opt.name))
     torch.manual_seed(opt.seed)
     src.slurm.init_distributed_mode(opt)
