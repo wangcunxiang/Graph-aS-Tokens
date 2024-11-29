@@ -113,7 +113,7 @@ The best-performed RFiD checkpoint on Natural Questions is [here](https://drive.
 # 📝 Data
 ### Following [FiD](https://github.com/facebookresearch/FiD), we use the same data and format and parse them into AMR graphs. However, due to the policy of Amazon company, we are unable to release the parsing code, but we can share that it is implemented based on the [AMRBART](https://huggingface.co/xfbai/AMRBART-large-finetuned-AMR3.0-AMRParsing) model.
 ## Download data
-Though we cannot share the parsing code, we can share the parsed data, which can be accessed [here](https://drive.google.com/file/d/11Dr6bPPiL9oflIzNhm_XLtWQIEdCywj6/view?usp=sharing).
+Though we cannot share the parsing code, we can share the parsed data, which can be accessed [here](https://drive.google.com/file/d/1qCrmV_zKrjHZBfbw6uDCMI83Co2GEUfA/view?usp=sharing).
 
 
 ## Data format
